@@ -105,7 +105,8 @@ public class PreviewRenderer {
      * see the tiles behind the box while shaping it.
      */
     private static void renderBoxEdges() {
-        GL11.glColor4d(0.2, 0.8, 1, 0.9);
+        boolean valid = LittleDeformedBoxHelper.hasValidGeometry();
+        GL11.glColor4d(valid ? 0.2 : 1, valid ? 0.8 : 0.1, valid ? 1 : 0.1, 0.9);
         GL11.glBegin(GL11.GL_LINES);
         for (int[] edge : BOX_EDGES) {
             for (int index : edge) {
@@ -137,7 +138,8 @@ public class PreviewRenderer {
             local[i] = Mesh3dUtil.toLocal(cutout.corners[i], cutout.size);
         }
 
-        GL11.glColor4d(0.2, 0.8, 1, 0.45);
+        boolean valid = LittleDeformedBoxHelper.hasValidGeometry();
+        GL11.glColor4d(valid ? 0.2 : 1, valid ? 0.8 : 0.1, valid ? 1 : 0.1, 0.45);
         GL11.glBegin(GL11.GL_LINES);
         for (int[] face : Mesh3dUtil.DEFORMED_BOX_FACES) {
             if (isFacePlanar(face, cutout.corners)) {
@@ -181,6 +183,7 @@ public class PreviewRenderer {
      * {@link LittleDeformedBoxHelper#pickCorner} raytraces against, so what is clicked is what is shown.
      */
     private static void renderCornerMarkers(int grid) {
+        boolean valid = LittleDeformedBoxHelper.hasValidGeometry();
         for (int i = 0; i < Mesh3dUtil.DEFORMED_BOX_CORNER_COUNT; i++) {
             AxisAlignedBB box = LittleDeformedBoxHelper.getCornerBoxAABB(i, grid);
             boolean selected = LittleDeformedBoxHelper.isMarkedCorner(i);
@@ -194,9 +197,9 @@ public class PreviewRenderer {
                     0,
                     0,
                     0,
-                    selected ? 1 : 0.2,
-                    0.6,
-                    selected ? 0 : 1,
+                    valid ? (selected ? 1 : 0.2) : 1,
+                    valid ? 0.6 : 0.1,
+                    valid ? (selected ? 0 : 1) : 0.1,
                     selected ? 0.9 : 0.5);
         }
     }
