@@ -265,7 +265,9 @@ public class PreviewRenderer {
                         // Needed for block picked cutouts
                         Vector3d cutoutSize = toolHandler.getTileSize();
 
-                        if (!(shape == LittleTileShapeMode.BOX || shape == LittleTileShapeMode.PILLAR)) {
+                        boolean renderAsBox = shape == LittleTileShapeMode.BOX || shape == LittleTileShapeMode.PILLAR;
+
+                        if (!renderAsBox) {
                             cubeX -= size.xCoord / 2;
                             cubeY -= size.yCoord / 2;
                             cubeZ -= size.zCoord / 2;
@@ -274,7 +276,7 @@ public class PreviewRenderer {
                         if (cutoutSize == null) {
                             cutoutSize = new Vector3d(size.xCoord, size.yCoord, size.zCoord);
                         }
-                        if (shape == LittleTileShapeMode.BOX || shape == LittleTileShapeMode.PILLAR) {
+                        if (renderAsBox) {
                             RenderHelper3D.renderBlock(
                                     cubeX,
                                     cubeY,
