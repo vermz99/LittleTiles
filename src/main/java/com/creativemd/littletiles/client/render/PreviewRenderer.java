@@ -28,6 +28,7 @@ import com.creativemd.littletiles.common.gui.GuiToolConfig;
 import com.creativemd.littletiles.common.packet.LittleFlipPacket;
 import com.creativemd.littletiles.common.packet.LittleRotatePacket;
 import com.creativemd.littletiles.common.utils.LittleTileBlockPos;
+import com.creativemd.littletiles.common.utils.LittleTileCutoutInfo;
 import com.creativemd.littletiles.common.utils.LittleTileShapeMode;
 import com.creativemd.littletiles.common.utils.LittleToolHandler;
 import com.creativemd.littletiles.common.utils.PlacementHelper;
@@ -247,8 +248,11 @@ public class PreviewRenderer {
                         Vec3 color = previewTile.getPreviewColor();
 
                         LittleToolHandler toolHandler;
+
+                        LittleTileCutoutInfo cutoutInfo = null;
                         if (previewTile.preview != null) {
                             toolHandler = new LittleToolHandler(previewTile.preview.nbt);
+                            cutoutInfo = LittleTileCutoutInfo.loadFromNBT(previewTile.preview.nbt);
                         } else {
                             toolHandler = new LittleToolHandler(mc.thePlayer.getHeldItem());
                         }
@@ -298,7 +302,7 @@ public class PreviewRenderer {
                                             (int) Math.round(size.xCoord * 16),
                                             (int) Math.round(size.yCoord * 16),
                                             (int) Math.round(size.zCoord * 16)),
-                                    shape);
+                                    cutoutInfo);
                         }
 
                         GL11.glPopMatrix();

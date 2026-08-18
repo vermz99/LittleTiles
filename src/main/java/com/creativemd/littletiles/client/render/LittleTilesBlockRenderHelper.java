@@ -29,7 +29,6 @@ import com.creativemd.littletiles.client.util3d.Mesh3d;
 import com.creativemd.littletiles.client.util3d.Mesh3dUtil;
 import com.creativemd.littletiles.client.util3d.Triangle3d;
 import com.creativemd.littletiles.common.utils.LittleTileCutoutInfo;
-import com.creativemd.littletiles.common.utils.LittleTileShapeMode;
 import com.creativemd.littletiles.common.utils.LittleTilesCubeObject;
 
 import cpw.mods.fml.relauncher.Side;
@@ -43,13 +42,7 @@ public class LittleTilesBlockRenderHelper {
 
     public static void renderMesh(double x, double y, double z, Vector3d cutoutScale, int orientation, double red,
             double green, double blue, double alpha, Vector3i posCutout, Vector3i posSubMin, Vector3i posSubMax,
-            LittleTileShapeMode shapeMode) {
-        LittleTileCutoutInfo cutoutInfo = new LittleTileCutoutInfo();
-        cutoutInfo.type = shapeMode;
-        cutoutInfo.size = new Vector3i(
-                (int) Math.round(cutoutScale.x * 16),
-                (int) Math.round(cutoutScale.y * 16),
-                (int) Math.round(cutoutScale.z * 16));
+            LittleTileCutoutInfo cutoutInfo) {
         Mesh3d mesh = Mesh3dUtil.createMesh(
                 cutoutInfo,
                 cutoutScale,
