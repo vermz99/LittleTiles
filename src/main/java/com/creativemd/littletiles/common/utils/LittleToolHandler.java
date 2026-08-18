@@ -102,6 +102,10 @@ public class LittleToolHandler {
         return LittleTileShapeMode.values()[shape];
     }
 
+    public boolean isDeformedBoxShape() {
+        return getShape() == LittleTileShapeMode.DEFORMED_BOX;
+    }
+
     public void setShape(int shape) {
         NBTTagCompound tag = getTag(true);
         tag.setByte("shape", (byte) shape);
@@ -211,6 +215,11 @@ public class LittleToolHandler {
     }
 
     private void applyCutoutTransform(Matrix3f transform, LittleTileSize oldSize) {
+        // Skip transformed boxes for now
+        if (isDeformedBoxShape()) {
+            return;
+        }
+
         // Get saved orientation
         int orientation = getOrientation();
         Matrix3f matrix = OrientationMapper.fromId(orientation);
