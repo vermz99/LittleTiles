@@ -72,6 +72,14 @@ public class LittleTilePlacementPlan {
         return canApplyPlan;
     }
 
+    public ArrayList<ChunkCoordinates> getPlannedCoords() {
+        ArrayList<ChunkCoordinates> coords = new ArrayList<>();
+        for (PlacementEntry entry : entries) {
+            coords.add(new ChunkCoordinates(entry.coord.posX, entry.coord.posY, entry.coord.posZ));
+        }
+        return coords;
+    }
+
     public boolean applyPlan(World world, EntityPlayer player, ItemStack stack, LittleStructure structure,
             ArrayList<LittleTile> unplaceableTiles) {
         structureMainPosition = null;
