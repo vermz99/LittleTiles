@@ -53,6 +53,7 @@ public class LittleTilesClient extends LittleTilesServer {
         MinecraftForgeClient.registerItemRenderer(LittleTiles.multiTiles, renderer);
         FMLCommonHandler.instance().bus().register(new PreviewRenderer());
         MinecraftForge.EVENT_BUS.register(new PreviewRenderer());
+        MinecraftForge.EVENT_BUS.register(new DeformCornerMouseHandler());
         ClientRegistry.registerKeyBinding(up);
         ClientRegistry.registerKeyBinding(down);
         ClientRegistry.registerKeyBinding(right);
