@@ -13,7 +13,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -204,20 +203,14 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ITilesRend
         }
 
         ArrayList<LittleTile> unplaceableTiles = new ArrayList<>();
-        ArrayList<ChunkCoordinates> plannedCoords = plan.getPlannedCoords();
         ItemStack heldBeforePlace = player.inventory.mainInventory[player.inventory.currentItem];
         boolean isStencilChiselNonCreative = !player.capabilities.isCreativeMode && heldBeforePlace != null
                 && heldBeforePlace.getItem() == LittleTiles.chisel
                 && placeMode == LittleTilePlaceMode.STENCIL;
         boolean shouldRecordHistory = !world.isRemote && !isStencilChiselNonCreative;
-        ArrayList<LittleTilesPlacementHistory.BlockSnapshot> beforeStates = null;
-        if (shouldRecordHistory) {
-            beforeStates = LittleTilesPlacementHistory.captureSnapshots(world, plannedCoords);
-        }
-
         LittleTilePlacementPlanResult placementResult = plan
                 .applyPlan(world, player, stack, structure, unplaceableTiles);
-        if (placementResult.hasPlacedTiles()) {
+        if (placementResult.hasChanges()) {
             ItemStack currentStack = player.inventory.mainInventory[player.inventory.currentItem];
             boolean isChisel = currentStack != null && currentStack.getItem() == LittleTiles.chisel;
             if (!player.capabilities.isCreativeMode && !isChisel) {
@@ -226,14 +219,11 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ITilesRend
             }
 
             if (shouldRecordHistory) {
-                ArrayList<LittleTilesPlacementHistory.BlockSnapshot> afterStates = LittleTilesPlacementHistory
-                        .captureSnapshots(world, plannedCoords);
                 LittleTilesPlacementHistory.recordPlacement(
                         player,
                         new LittleTilesPlacementHistory.PlacementAction(
                                 world.provider.dimensionId,
-                                beforeStates,
-                                afterStates));
+                                placementResult.createPlan()));
             }
 
             if (!world.isRemote) {

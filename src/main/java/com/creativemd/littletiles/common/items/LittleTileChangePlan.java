@@ -186,6 +186,10 @@ public final class LittleTileChangePlan {
             return copyTiles(removedTiles);
         }
 
+        public boolean hasPlacedTiles() {
+            return !placedTiles.isEmpty();
+        }
+
         private static ArrayList<NBTTagCompound> saveTiles(List<LittleTile> tiles) {
             ArrayList<NBTTagCompound> result = new ArrayList<>();
             for (LittleTile tile : tiles) {

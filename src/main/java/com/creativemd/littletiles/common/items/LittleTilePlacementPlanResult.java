@@ -22,7 +22,7 @@ public final class LittleTilePlacementPlanResult {
 
     public boolean hasPlacedTiles() {
         for (ChangeEntry change : changes) {
-            if (!change.placedTiles.isEmpty()) return true;
+            if (change.hasPlacedTiles()) return true;
         }
         return false;
     }
