@@ -1,7 +1,6 @@
 package com.creativemd.littletiles.common.items;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.Block.SoundType;
@@ -24,6 +23,7 @@ import com.creativemd.littletiles.common.utils.LittleTilePlaceMode;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.common.utils.small.LittleTileCoord;
 import com.creativemd.littletiles.utils.PreviewTile;
+import com.creativemd.littletiles.utils.PreviewTilePlacementResult;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 
@@ -91,12 +91,23 @@ public class LittleTilePlacementPlan {
                 continue;
             }
             ArrayList<LittleTile> placedTiles = new ArrayList<>();
+            ArrayList<LittleTile> removedTiles = new ArrayList<>();
             for (PreviewTile placeTile : entry.placeTiles) {
-                List<LittleTile> placed = applyTile(entry, placeTile, tile, player, stack, structure, unplaceableTiles);
-                if (placed != null) placedTiles.addAll(placed);
+                PreviewTilePlacementResult tileResult = applyTile(
+                        entry,
+                        placeTile,
+                        tile,
+                        player,
+                        stack,
+                        structure,
+                        unplaceableTiles);
+                if (tileResult != null) {
+                    placedTiles.addAll(tileResult.getPlacedTiles());
+                    removedTiles.addAll(tileResult.getRemovedTiles());
+                }
             }
             if (structure != null) tile.combineTiles(structure);
-            result.addPlacedTiles(entry.coord, placedTiles);
+            result.addChangedTiles(entry.coord, placedTiles, removedTiles);
         }
         for (SoundType soundType : soundsToBePlayed) {
             playTileSound(world, player, soundType);
@@ -171,8 +182,9 @@ public class LittleTilePlacementPlan {
         return null;
     }
 
-    private List<LittleTile> applyTile(PlacementEntry entry, PreviewTile placeTile, TileEntityLittleTiles tile,
-            EntityPlayer player, ItemStack stack, LittleStructure structure, ArrayList<LittleTile> unplaceableTiles) {
+    private PreviewTilePlacementResult applyTile(PlacementEntry entry, PreviewTile placeTile,
+            TileEntityLittleTiles tile, EntityPlayer player, ItemStack stack, LittleStructure structure,
+            ArrayList<LittleTile> unplaceableTiles) {
         LittleTileCutoutInfo baseCutoutInfo = getBaseCutoutInfo(placeTile);
         LittleTileCutoutInfo cutoutInfoCurrent = getCutoutInfoCurrent(entry.coord, placeTile);
         // Mesh-backed fragments can clip to empty space when split across blocks.
@@ -181,13 +193,13 @@ public class LittleTilePlacementPlan {
             return null;
         }
 
-        List<LittleTile> tiles = placeTile
+        PreviewTilePlacementResult result = placeTile
                 .placeTile(player, stack, tile, structure, unplaceableTiles, placeMode, cutoutInfoCurrent);
-        if (tiles == null) {
+        if (result == null) {
             return null;
         }
 
-        for (LittleTile littleTile : tiles) {
+        for (LittleTile littleTile : result.getPlacedTiles()) {
             if (structure != null) {
                 if (structureMainPosition == null) {
                     structure.mainTile = littleTile;
@@ -203,7 +215,7 @@ public class LittleTilePlacementPlan {
             }
             if (!soundsToBePlayed.contains(littleTile.getSound())) soundsToBePlayed.add(littleTile.getSound());
         }
-        return tiles;
+        return result;
     }
 
     private static LittleTileCutoutInfo getBaseCutoutInfo(PreviewTile placeTile) {

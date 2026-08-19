@@ -50,7 +50,7 @@ public class PreviewTile {
         return box;
     }
 
-    private List<LittleTile> placeTileModeFill(LittleTile tileNew, EntityPlayer player, ItemStack stack) {
+    private PreviewTilePlacementResult placeTileModeFill(LittleTile tileNew, EntityPlayer player, ItemStack stack) {
         List<LittleTile> tiles = new ArrayList<>();
         tiles.add(tileNew);
 
@@ -70,16 +70,20 @@ public class PreviewTile {
             tile.place();
             tile.onPlaced(player, stack);
         }
-        return tiles;
+        PreviewTilePlacementResult result = new PreviewTilePlacementResult();
+        result.addPlacedTiles(tiles);
+        return result;
     }
 
-    private List<LittleTile> placeTileModeOverwrite(LittleTile tileNew, EntityPlayer player, ItemStack stack,
+    private PreviewTilePlacementResult placeTileModeOverwrite(LittleTile tileNew, EntityPlayer player, ItemStack stack,
             boolean doAdd) {
         List<LittleTile> tiles = new ArrayList<>(tileNew.te.getTiles());
         List<LittleTile> newTiles = new ArrayList<>();
+        PreviewTilePlacementResult result = new PreviewTilePlacementResult();
 
         for (LittleTile t : tiles) {
             if (t.overlapsTile(tileNew)) {
+                result.addRemovedTile(t);
                 newTiles.addAll(t.splitByTile(tileNew));
                 t.destroy(false);
             }
@@ -92,14 +96,15 @@ public class PreviewTile {
             tile.place();
             tile.onPlaced(player, stack);
         }
+        result.addPlacedTiles(newTiles);
         if (newTiles.isEmpty()) {
             // Trigger cleanup in case tile is empty
             tileNew.te.updateTiles();
         }
-        return newTiles;
+        return result;
     }
 
-    public List<LittleTile> placeTile(EntityPlayer player, ItemStack stack, TileEntityLittleTiles teLT,
+    public PreviewTilePlacementResult placeTile(EntityPlayer player, ItemStack stack, TileEntityLittleTiles teLT,
             LittleStructure structure, ArrayList<LittleTile> unplaceableTiles, LittleTilePlaceMode placeMode,
             LittleTileCutoutInfo cutoutInfoCurrent) {
         LittleTile LT = preview.getLittleTile(teLT);
@@ -121,9 +126,9 @@ public class PreviewTile {
             }
             LT.place();
             LT.onPlaced(player, stack);
-            List<LittleTile> ret = new ArrayList<>();
-            ret.add(LT);
-            return ret;
+            PreviewTilePlacementResult result = new PreviewTilePlacementResult();
+            result.addPlacedTile(LT);
+            return result;
         } else if (placeMode == LittleTilePlaceMode.FILL) {
             return placeTileModeFill(LT, player, stack);
         } else if (placeMode == LittleTilePlaceMode.OVERWRITE) {

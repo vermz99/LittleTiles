@@ -13,40 +13,59 @@ import com.creativemd.littletiles.common.utils.LittleTile;
  */
 public final class LittleTilePlacementPlanResult {
 
-    private final ArrayList<PlacedBlock> placedBlocks = new ArrayList<>();
+    private final ArrayList<BlockResult> blocks = new ArrayList<>();
 
-    void addPlacedTiles(ChunkCoordinates coord, List<LittleTile> tiles) {
-        if (tiles.isEmpty()) return;
-        placedBlocks.add(new PlacedBlock(coord, tiles));
+    void addChangedTiles(ChunkCoordinates coord, List<LittleTile> placedTiles, List<LittleTile> removedTiles) {
+        if (placedTiles.isEmpty() && removedTiles.isEmpty()) return;
+        blocks.add(new BlockResult(coord, placedTiles, removedTiles));
     }
 
     public boolean hasPlacedTiles() {
-        return !placedBlocks.isEmpty();
+        for (BlockResult block : blocks) {
+            if (!block.placedTiles.isEmpty()) return true;
+        }
+        return false;
     }
 
-    public ArrayList<PlacedBlock> getPlacedBlocks() {
-        return new ArrayList<>(placedBlocks);
+    public ArrayList<BlockResult> getBlocks() {
+        return new ArrayList<>(blocks);
     }
 
-    public static final class PlacedBlock {
+    public static final class BlockResult {
 
         private final ChunkCoordinates coord;
-        private final ArrayList<NBTTagCompound> tiles = new ArrayList<>();
+        private final ArrayList<NBTTagCompound> placedTiles;
+        private final ArrayList<NBTTagCompound> removedTiles;
 
-        private PlacedBlock(ChunkCoordinates coord, List<LittleTile> placedTiles) {
+        private BlockResult(ChunkCoordinates coord, List<LittleTile> placedTiles, List<LittleTile> removedTiles) {
             this.coord = new ChunkCoordinates(coord.posX, coord.posY, coord.posZ);
-            for (LittleTile tile : placedTiles) {
-                NBTTagCompound nbt = new NBTTagCompound();
-                tile.saveTile(nbt);
-                tiles.add(nbt);
-            }
+            this.placedTiles = saveTiles(placedTiles);
+            this.removedTiles = saveTiles(removedTiles);
         }
 
         public ChunkCoordinates getCoord() {
             return new ChunkCoordinates(coord.posX, coord.posY, coord.posZ);
         }
 
-        public ArrayList<NBTTagCompound> getTiles() {
+        public ArrayList<NBTTagCompound> getPlacedTiles() {
+            return copyTiles(placedTiles);
+        }
+
+        public ArrayList<NBTTagCompound> getRemovedTiles() {
+            return copyTiles(removedTiles);
+        }
+
+        private static ArrayList<NBTTagCompound> saveTiles(List<LittleTile> tiles) {
+            ArrayList<NBTTagCompound> result = new ArrayList<>();
+            for (LittleTile tile : tiles) {
+                NBTTagCompound nbt = new NBTTagCompound();
+                tile.saveTile(nbt);
+                result.add(nbt);
+            }
+            return result;
+        }
+
+        private static ArrayList<NBTTagCompound> copyTiles(List<NBTTagCompound> tiles) {
             ArrayList<NBTTagCompound> result = new ArrayList<>();
             for (NBTTagCompound tile : tiles) {
                 result.add((NBTTagCompound) tile.copy());
