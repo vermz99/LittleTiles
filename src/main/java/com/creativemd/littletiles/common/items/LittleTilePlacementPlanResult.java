@@ -27,6 +27,18 @@ public final class LittleTilePlacementPlanResult {
         return false;
     }
 
+    public boolean hasChanges() {
+        return !changes.isEmpty();
+    }
+
+    public LittleTilePlacementPlanResult invert() {
+        LittleTilePlacementPlanResult result = new LittleTilePlacementPlanResult();
+        for (ChangeEntry change : changes) {
+            result.changes.add(change.invert());
+        }
+        return result;
+    }
+
     public ArrayList<ChangeEntry> getChanges() {
         return new ArrayList<>(changes);
     }
@@ -41,6 +53,17 @@ public final class LittleTilePlacementPlanResult {
             this.coord = new ChunkCoordinates(coord.posX, coord.posY, coord.posZ);
             this.placedTiles = saveTiles(placedTiles);
             this.removedTiles = saveTiles(removedTiles);
+        }
+
+        private ChangeEntry(ChunkCoordinates coord, ArrayList<NBTTagCompound> placedTiles,
+                ArrayList<NBTTagCompound> removedTiles) {
+            this.coord = new ChunkCoordinates(coord.posX, coord.posY, coord.posZ);
+            this.placedTiles = copyTiles(placedTiles);
+            this.removedTiles = copyTiles(removedTiles);
+        }
+
+        private ChangeEntry invert() {
+            return new ChangeEntry(coord, removedTiles, placedTiles);
         }
 
         public ChunkCoordinates getCoord() {
