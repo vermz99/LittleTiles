@@ -13,31 +13,31 @@ import com.creativemd.littletiles.common.utils.LittleTile;
  */
 public final class LittleTilePlacementPlanResult {
 
-    private final ArrayList<BlockResult> blocks = new ArrayList<>();
+    private final ArrayList<ChangeEntry> changes = new ArrayList<>();
 
     void addChangedTiles(ChunkCoordinates coord, List<LittleTile> placedTiles, List<LittleTile> removedTiles) {
         if (placedTiles.isEmpty() && removedTiles.isEmpty()) return;
-        blocks.add(new BlockResult(coord, placedTiles, removedTiles));
+        changes.add(new ChangeEntry(coord, placedTiles, removedTiles));
     }
 
     public boolean hasPlacedTiles() {
-        for (BlockResult block : blocks) {
-            if (!block.placedTiles.isEmpty()) return true;
+        for (ChangeEntry change : changes) {
+            if (!change.placedTiles.isEmpty()) return true;
         }
         return false;
     }
 
-    public ArrayList<BlockResult> getBlocks() {
-        return new ArrayList<>(blocks);
+    public ArrayList<ChangeEntry> getChanges() {
+        return new ArrayList<>(changes);
     }
 
-    public static final class BlockResult {
+    public static final class ChangeEntry {
 
         private final ChunkCoordinates coord;
         private final ArrayList<NBTTagCompound> placedTiles;
         private final ArrayList<NBTTagCompound> removedTiles;
 
-        private BlockResult(ChunkCoordinates coord, List<LittleTile> placedTiles, List<LittleTile> removedTiles) {
+        private ChangeEntry(ChunkCoordinates coord, List<LittleTile> placedTiles, List<LittleTile> removedTiles) {
             this.coord = new ChunkCoordinates(coord.posX, coord.posY, coord.posZ);
             this.placedTiles = saveTiles(placedTiles);
             this.removedTiles = saveTiles(removedTiles);
