@@ -80,8 +80,8 @@ public class LittleTilePlacementPlan {
         return coords;
     }
 
-    public boolean applyPlan(World world, EntityPlayer player, ItemStack stack, LittleStructure structure,
-            ArrayList<LittleTile> unplaceableTiles) {
+    public LittleTilePlacementPlanResult applyPlan(World world, EntityPlayer player, ItemStack stack,
+            LittleStructure structure, ArrayList<LittleTile> unplaceableTiles) {
         structureMainPosition = null;
         soundsToBePlayed.clear();
         boolean didPlace = false;
@@ -98,7 +98,7 @@ public class LittleTilePlacementPlan {
         for (SoundType soundType : soundsToBePlayed) {
             playTileSound(world, player, soundType);
         }
-        return didPlace;
+        return new LittleTilePlacementPlanResult(didPlace);
     }
 
     private boolean tryFillPlan(World world, int x, int y, int z, ArrayList<PreviewTile> previews,

@@ -174,7 +174,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ITilesRend
             return false;
         }
 
-        return plan.applyPlan(world, player, stack, structure, unplaceableTiles);
+        return plan.applyPlan(world, player, stack, structure, unplaceableTiles).hasPlacedTiles();
     }
 
     public boolean placeBlockAt(EntityPlayer player, ItemStack stack, World world, LittleTileBlockPos pos,
@@ -215,7 +215,9 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ITilesRend
             beforeStates = LittleTilesPlacementHistory.captureSnapshots(world, plannedCoords);
         }
 
-        if (plan.applyPlan(world, player, stack, structure, unplaceableTiles)) {
+        LittleTilePlacementPlanResult placementResult = plan
+                .applyPlan(world, player, stack, structure, unplaceableTiles);
+        if (placementResult.hasPlacedTiles()) {
             ItemStack currentStack = player.inventory.mainInventory[player.inventory.currentItem];
             boolean isChisel = currentStack != null && currentStack.getItem() == LittleTiles.chisel;
             if (!player.capabilities.isCreativeMode && !isChisel) {
