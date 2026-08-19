@@ -17,10 +17,12 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.items.ItemColorTube;
 import com.creativemd.littletiles.common.items.ItemTileContainer;
+import com.creativemd.littletiles.common.items.LittleTileChangePlan;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTileBlock;
 import com.creativemd.littletiles.common.utils.LittleTileBlockColored;
+import com.creativemd.littletiles.common.utils.LittleTilesPlacementHistory;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 
 import cpw.mods.fml.relauncher.Side;
@@ -122,11 +124,25 @@ public class LittleBlockPacket extends CreativeCorePacket {
                             BlockTile.cancelNext = true;
                         break;
                     case DESTROY:
+                        ArrayList<LittleTile> destroyedTiles = new ArrayList<>();
+                        if (tile.isStructureBlock) {
+                            if (tile.isLoaded()) destroyedTiles.addAll(tile.structure.getTiles());
+                        } else {
+                            destroyedTiles.add(tile);
+                        }
+                        LittleTileChangePlan destroyPlan = LittleTileChangePlan.forRemovedTiles(destroyedTiles);
                         tile.destroy();
                         // littleEntity.removeTile(tile);
                         if (!player.capabilities.isCreativeMode)
                             WorldUtils.dropItem(player.worldObj, tile.getDrops(), x, y, z);
                         littleEntity.update();
+                        if (!destroyedTiles.isEmpty()) {
+                            LittleTilesPlacementHistory.recordPlacement(
+                                    player,
+                                    new LittleTilesPlacementHistory.PlacementAction(
+                                            player.worldObj.provider.dimensionId,
+                                            destroyPlan));
+                        }
                         break;
                     case SAW:
                         try {

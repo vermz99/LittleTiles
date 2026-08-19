@@ -9,6 +9,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.World;
 
+import com.creativemd.creativecore.common.utils.HashMapList;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -23,6 +24,24 @@ public final class LittleTileChangePlan {
         for (ChangeEntry change : changes) {
             this.changes.add(change.copy());
         }
+    }
+
+    public static LittleTileChangePlan forRemovedTiles(List<LittleTile> removedTiles) {
+        HashMapList<ChunkCoordinates, LittleTile> tilesByBlock = new HashMapList<>();
+        for (LittleTile tile : removedTiles) {
+            if (tile != null && tile.te != null) {
+                tilesByBlock.add(tile.te.getCoord(), tile);
+            }
+        }
+
+        ArrayList<ChangeEntry> changes = new ArrayList<>();
+        for (int i = 0; i < tilesByBlock.getKeys().size(); i++) {
+            changes.add(new ChangeEntry(
+                    tilesByBlock.getKey(i),
+                    new ArrayList<LittleTile>(),
+                    tilesByBlock.getValues(i)));
+        }
+        return new LittleTileChangePlan(changes);
     }
 
     public LittleTileChangePlan invert() {
