@@ -84,21 +84,24 @@ public class LittleTilePlacementPlan {
             LittleStructure structure, ArrayList<LittleTile> unplaceableTiles) {
         structureMainPosition = null;
         soundsToBePlayed.clear();
-        boolean didPlace = false;
+        LittleTilePlacementPlanResult result = new LittleTilePlacementPlanResult();
         for (PlacementEntry entry : entries) {
             TileEntityLittleTiles tile = getOrCreateTileEntity(world, entry);
             if (tile == null) {
                 continue;
             }
+            ArrayList<LittleTile> placedTiles = new ArrayList<>();
             for (PreviewTile placeTile : entry.placeTiles) {
-                didPlace |= applyTile(entry, placeTile, tile, player, stack, structure, unplaceableTiles);
+                List<LittleTile> placed = applyTile(entry, placeTile, tile, player, stack, structure, unplaceableTiles);
+                if (placed != null) placedTiles.addAll(placed);
             }
             if (structure != null) tile.combineTiles(structure);
+            result.addPlacedTiles(entry.coord, placedTiles);
         }
         for (SoundType soundType : soundsToBePlayed) {
             playTileSound(world, player, soundType);
         }
-        return new LittleTilePlacementPlanResult(didPlace);
+        return result;
     }
 
     private boolean tryFillPlan(World world, int x, int y, int z, ArrayList<PreviewTile> previews,
@@ -168,25 +171,23 @@ public class LittleTilePlacementPlan {
         return null;
     }
 
-    private boolean applyTile(PlacementEntry entry, PreviewTile placeTile, TileEntityLittleTiles tile,
+    private List<LittleTile> applyTile(PlacementEntry entry, PreviewTile placeTile, TileEntityLittleTiles tile,
             EntityPlayer player, ItemStack stack, LittleStructure structure, ArrayList<LittleTile> unplaceableTiles) {
         LittleTileCutoutInfo baseCutoutInfo = getBaseCutoutInfo(placeTile);
         LittleTileCutoutInfo cutoutInfoCurrent = getCutoutInfoCurrent(entry.coord, placeTile);
         // Mesh-backed fragments can clip to empty space when split across blocks.
         // In that case we skip placement for this fragment instead of placing a full box tile.
         if (baseCutoutInfo != null && cutoutInfoCurrent == null) {
-            return false;
+            return null;
         }
 
         List<LittleTile> tiles = placeTile
                 .placeTile(player, stack, tile, structure, unplaceableTiles, placeMode, cutoutInfoCurrent);
         if (tiles == null) {
-            return false;
+            return null;
         }
 
-        boolean didPlace = false;
         for (LittleTile littleTile : tiles) {
-            didPlace = true;
             if (structure != null) {
                 if (structureMainPosition == null) {
                     structure.mainTile = littleTile;
@@ -202,7 +203,7 @@ public class LittleTilePlacementPlan {
             }
             if (!soundsToBePlayed.contains(littleTile.getSound())) soundsToBePlayed.add(littleTile.getSound());
         }
-        return didPlace;
+        return tiles;
     }
 
     private static LittleTileCutoutInfo getBaseCutoutInfo(PreviewTile placeTile) {
