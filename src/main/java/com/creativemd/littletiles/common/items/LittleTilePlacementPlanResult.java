@@ -3,9 +3,9 @@ package com.creativemd.littletiles.common.items;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ChunkCoordinates;
 
+import com.creativemd.littletiles.common.items.LittleTileChangePlan.ChangeEntry;
 import com.creativemd.littletiles.common.utils.LittleTile;
 
 /**
@@ -31,69 +31,12 @@ public final class LittleTilePlacementPlanResult {
         return !changes.isEmpty();
     }
 
-    public LittleTilePlacementPlanResult invert() {
-        LittleTilePlacementPlanResult result = new LittleTilePlacementPlanResult();
-        for (ChangeEntry change : changes) {
-            result.changes.add(change.invert());
-        }
-        return result;
+    public LittleTileChangePlan createPlan() {
+        return new LittleTileChangePlan(changes);
     }
 
     public ArrayList<ChangeEntry> getChanges() {
         return new ArrayList<>(changes);
     }
 
-    public static final class ChangeEntry {
-
-        private final ChunkCoordinates coord;
-        private final ArrayList<NBTTagCompound> placedTiles;
-        private final ArrayList<NBTTagCompound> removedTiles;
-
-        private ChangeEntry(ChunkCoordinates coord, List<LittleTile> placedTiles, List<LittleTile> removedTiles) {
-            this.coord = new ChunkCoordinates(coord.posX, coord.posY, coord.posZ);
-            this.placedTiles = saveTiles(placedTiles);
-            this.removedTiles = saveTiles(removedTiles);
-        }
-
-        private ChangeEntry(ChunkCoordinates coord, ArrayList<NBTTagCompound> placedTiles,
-                ArrayList<NBTTagCompound> removedTiles) {
-            this.coord = new ChunkCoordinates(coord.posX, coord.posY, coord.posZ);
-            this.placedTiles = copyTiles(placedTiles);
-            this.removedTiles = copyTiles(removedTiles);
-        }
-
-        private ChangeEntry invert() {
-            return new ChangeEntry(coord, removedTiles, placedTiles);
-        }
-
-        public ChunkCoordinates getCoord() {
-            return new ChunkCoordinates(coord.posX, coord.posY, coord.posZ);
-        }
-
-        public ArrayList<NBTTagCompound> getPlacedTiles() {
-            return copyTiles(placedTiles);
-        }
-
-        public ArrayList<NBTTagCompound> getRemovedTiles() {
-            return copyTiles(removedTiles);
-        }
-
-        private static ArrayList<NBTTagCompound> saveTiles(List<LittleTile> tiles) {
-            ArrayList<NBTTagCompound> result = new ArrayList<>();
-            for (LittleTile tile : tiles) {
-                NBTTagCompound nbt = new NBTTagCompound();
-                tile.saveTile(nbt);
-                result.add(nbt);
-            }
-            return result;
-        }
-
-        private static ArrayList<NBTTagCompound> copyTiles(List<NBTTagCompound> tiles) {
-            ArrayList<NBTTagCompound> result = new ArrayList<>();
-            for (NBTTagCompound tile : tiles) {
-                result.add((NBTTagCompound) tile.copy());
-            }
-            return result;
-        }
-    }
 }

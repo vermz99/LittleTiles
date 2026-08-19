@@ -8,6 +8,7 @@ import net.minecraft.util.Vec3;
 
 import com.creativemd.creativecore.common.utils.RotationUtils.Axis;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
+import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTileCutoutInfo;
 import com.creativemd.littletiles.common.utils.LittleTilePlaceMode;
 import com.creativemd.littletiles.common.utils.LittleTilePreview;
